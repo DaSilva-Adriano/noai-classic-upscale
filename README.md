@@ -33,3 +33,9 @@ Writes next to each source, never overwrites the original:
 - `my.video.final.mp4` → `my.video.final-bicubic.mp4`
 
 Default encode: 4K `3840x2160`, `libx265`, CRF 12, preset `medium`, `yuv420p`, `hvc1`, audio copy.
+
+## License
+
+[GNU General Public License v3.0](LICENSE) (GPL-3.0-or-later).
+
+Copyright (C) 2026 Adriano.
