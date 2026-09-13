@@ -18,10 +18,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 Batch-upscale videos with FFmpeg using only classic interpolators
-(bicubic and lanczos). No denoise, sharpen, unsharp, eq, or other
-enhancement filters — interpolation only.
+(bilinear, bicubic, and lanczos). No denoise, sharpen, unsharp, eq, or
+other enhancement filters — interpolation only.
 
-Not NVIDIA VSR. This is a non-AI baseline scaler (bicubic / lanczos).
+Not NVIDIA VSR. This is a non-AI baseline scaler (bilinear / bicubic /
+lanczos).
 
 Requirements
   - Python 3.8+ with tkinter (standard library)
@@ -72,7 +73,7 @@ PRESETS = [
     "slower",
     "veryslow",
 ]
-METHODS_ORDER = ("bicubic", "lanczos")
+METHODS_ORDER = ("bilinear", "bicubic", "lanczos")
 OVERWRITE_POLICIES = ("Ask", "Overwrite", "Skip")
 
 DURATION_RE = re.compile(r"Duration:\s*(\d+):(\d+):(\d+(?:\.\d+)?)")
@@ -377,6 +378,7 @@ class NoaiClassicUpscaleApp:
         self.drop_hook = None
 
         self.ffmpeg_var = tk.StringVar()
+        self.bilinear_var = tk.BooleanVar(value=True)
         self.bicubic_var = tk.BooleanVar(value=True)
         self.lanczos_var = tk.BooleanVar(value=True)
         self.res_var = tk.StringVar(value=RESOLUTIONS[0][0])
@@ -467,6 +469,10 @@ class NoaiClassicUpscaleApp:
         row1 = ttk.Frame(opts)
         row1.pack(fill=tk.X, pady=2)
         ttk.Label(row1, text="Methods:").pack(side=tk.LEFT)
+        self.bilinear_chk = ttk.Checkbutton(
+            row1, text="Bilinear", variable=self.bilinear_var
+        )
+        self.bilinear_chk.pack(side=tk.LEFT, padx=(8, 0))
         self.bicubic_chk = ttk.Checkbutton(
             row1, text="Bicubic", variable=self.bicubic_var
         )
@@ -574,6 +580,7 @@ class NoaiClassicUpscaleApp:
             self.remove_btn,
             self.clear_btn,
             self.listbox,
+            self.bilinear_chk,
             self.bicubic_chk,
             self.lanczos_chk,
             self.res_combo,
@@ -788,6 +795,8 @@ class NoaiClassicUpscaleApp:
                 )
                 return None
         methods = []
+        if self.bilinear_var.get():
+            methods.append("bilinear")
         if self.bicubic_var.get():
             methods.append("bicubic")
         if self.lanczos_var.get():
@@ -795,7 +804,7 @@ class NoaiClassicUpscaleApp:
         if not methods:
             messagebox.showerror(
                 "No method selected",
-                "Enable Bicubic, Lanczos, or both.",
+                "Enable Bilinear, Bicubic, Lanczos, or any combination.",
                 parent=self.root,
             )
             return None
